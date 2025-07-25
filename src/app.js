@@ -6,6 +6,7 @@ import { cp, stat } from 'fs'
 import { stringify } from 'querystring'
 import { get } from 'http'
 import { text } from 'stream/consumers'
+import { error } from 'console'
 
 // import { NOMEM } from 'dns' // No lo necesitas, se puede quitar
 
@@ -117,7 +118,7 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
             //creamos un objeto global con el codigo postal para despues acceder a el
             await state.update({cp: clientAnswer})
         } else {
-            await controlCloudService(ctx.from, 'remove')
+            await handleCloudService(ctx.from, 'remove')
             return endFlow('Lo sentimos, por el momento no tenemos servicio a domicilio en tu zona.\n\n Tenemos la opción de recoger en sucursal, si deseas recoger el pedido por favor realiza de nuevo tu orden.\n\n También contamos con todo nuestro menú en *Uber Eats y Rappi*')
         }
     })
@@ -258,7 +259,7 @@ const confirmOrder = addKeyword(utils.setEvent('CONFIRM_ORDER'))
             ...order,
             productDetails: JSON.stringify(order.productDetails.apiFormat)
         }
-        await sendOrder(newOrder)
+        await senOrderAPI(newOrder)
         await flowDynamic(`Gracias por tu compra 🍣🥢: ${ctx.name} tu orden fue enviada correctamente.\nTe recordamos el id de tu orden: *${newOrder.orderId}* 🍱`)
         // ahora si el cliente escoge transferencia se manda un mensaje al dueño para que verifique la transferencia
         if (newOrder.payMethod === 'transferencia'){
@@ -269,13 +270,13 @@ const confirmOrder = addKeyword(utils.setEvent('CONFIRM_ORDER'))
         }
     })
     .addAction(async (ctx) => {
-        await controlCloudService(ctx.from, 'remove')
+        await handleCloudService(ctx.from, 'remove')
     })
 
 const cancelOrder = addKeyword(utils.setEvent('CANCEL_ORDER'))
     .addAnswer('Tu orden ha sido cancelada. Si deseas realizar un nuevo pedido, por favor accede a nuestro catalogo y haz el pedido de nuevo. Buen dìa :D')
     .addAction(async (ctx) => {
-        await controlCloudService(ctx.from, 'remove')
+        await handleCloudService(ctx.from, 'remove')
     })
 
 const orderFlow = addKeyword(EVENTS.ORDER)
@@ -283,7 +284,7 @@ const orderFlow = addKeyword(EVENTS.ORDER)
 .addAction(async (ctx) => {
     console.log('va a mandar blacklisttt')
     console.log(`numero a blacklisttttt: ${ctx.from}`)
-    await controlCloudService(ctx.from, 'add')
+    await handleCloudService(ctx.from, 'add')
 })
 .addAction(async (ctx,  {flowDynamic, provider, gotoFlow, state}) => {
     const orderId = ctx.message.orderMessage.orderId
@@ -374,13 +375,34 @@ const sendOrder = async (order) => {
             throw new Error(`Error al enviar la orden: ${response.statusText}`);
         } else if (response.ok){
             console.log(`orden enviada correctamente: ${response.statusText}`)
+            await senOrderAPI(order)
         }
     } catch (error) {
         console.error(`Error al hacer la PETICION ${error}`)
     }
 }
 
-const controlCloudService = async(number, intent) => {
+const senOrderAPI = async (order) => {
+    try{
+        const response = await fetch ('https://script.google.com/macros/s/AKfycbzhwNTB1cK11Y3Wm7uiuVrzNmu1HD1IlDTPlAJ37oUDgPIabCWbZqMZr-86mnUDK_JPBA/exec', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(order)
+        })
+        if (!response.ok){
+            console.error(`Error al enviar al script\n------------------\n ${response.statusText})`)
+        } else if (response.ok){
+            console.log(`RESPONSE DEL SCRIPT: ${JSON.stringify(response, null, 2)}`)
+            console.log(`Orden enviada al script correctamente: ${response.statusText}`)
+        }
+    }catch (error){
+        console.error(`Error al hacer la PETICION al GScript ${error}`)
+    }
+}
+
+const handleCloudService = async(number, intent) => {
     try {
         console.log(`se esta queriendo ${intent} a: ${number} `)
         const response = await fetch ('https://app.builderbot.cloud/api/v2/86d04d0d-259a-4db4-9ffb-b159f19d454d/blacklist', {
