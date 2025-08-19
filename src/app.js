@@ -116,6 +116,7 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
             }
             await state.update({order: updatedOrder})
             //creamos un objeto global con el codigo postal para despues acceder a el
+            const clientCP = state.get('cp')
             await state.update({cp: clientAnswer})
         } else {
             await handleCloudService(ctx.from, 'remove')
@@ -136,10 +137,23 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
                 ...currentOrder,
                 address: `${clientAnswer}, ${clientCP}`
             }
-            state.update({order: updatedOrder})
-            
-            return gotoFlow(payMethod)
+            await state.update({order: updatedOrder})
         })
+    .addAnswer('Proporcioname referencias de tu domicilio que puedan ayudar al repartidor a encontrarte más fácil :D. Sé muy específico por favor!!',
+               {capture: true}, 
+              async (ctx, {state, gotoFlow, fallBack}) =>{
+                  //vamos a actualizar la orden con las referencias del domicilio del cliente 
+                  const currentOrder = state.get('order')
+                  if (clientAnswer.length < 10 ){
+                      return fallBack(`${ctx.name}, por favor escribe la referencia de tu domicilio completa y detalladamente. Sé específico por favor`)
+                  }
+                  const updatedOrder = {
+                      ...currentOrder,
+                      refAddress: clientAnswer
+                  }
+                  await state.update({order: updatedOrder})
+                  return gotoFlow(payMethod)
+              })
 
 const payMethod = addKeyword(utils.setEvent('payMethod'))
         .addAnswer('¿Cuál será tu método de pago? (Efectivo, tarjeta o transferencia)', {capture: true}, async (ctx, {state, flowDynamic, fallBack, gotoFlow})=>{
@@ -303,6 +317,7 @@ const orderFlow = addKeyword(EVENTS.ORDER)
                         \nGracias por tu compra!`)*/
     const order = {
         action: 'nuevoPedido',
+        restaurante: Soru,
         orderId,
         orderToken,
         deliverOrRest,
@@ -311,6 +326,7 @@ const orderFlow = addKeyword(EVENTS.ORDER)
         sucursal : '',
         deliverTo: '',
         address: '',
+        refaddress: '',
         productDetails,
         total: orderDetails.price.total / 1000,
         currency: orderDetails.price.currency,
