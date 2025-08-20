@@ -139,7 +139,7 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
             }
             await state.update({order: updatedOrder})
         })
-    .addAnswer('Proporcioname referencias de tu domicilio que puedan ayudar al repartidor a encontrarte más fácil :D. Sé muy específico por favor!!',
+    .addAnswer('Proporcioname *referencias de tu domicilio* que puedan ayudar al repartidor a encontrarte más fácil :D. \n\n*Sé muy específico por favor!!*',
                {capture: true}, 
               async (ctx, {state, gotoFlow, fallBack}) => {
                   //vamos a actualizar la orden con las referencias del domicilio del cliente 
@@ -157,12 +157,12 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
               })
 
 const payMethod = addKeyword(utils.setEvent('payMethod'))
-        .addAnswer('¿Cuál será tu método de pago? (Efectivo, tarjeta o transferencia)', {capture: true}, async (ctx, {state, flowDynamic, fallBack, gotoFlow})=>{
+        .addAnswer('¿Cuál será tu método de pago? (Efectivo o tarjeta)', {capture: true}, async (ctx, {state, flowDynamic, fallBack, gotoFlow})=>{
             const currentOrder = state.get('order')
-            const validPayMethods = {'efectivo': '', 'tarjeta': '', 'transferencia': ''}
+            const validPayMethods = {'efectivo': '', 'tarjeta': ''}
             const clientAnswer = ctx.body.toLocaleLowerCase()
             if (!(clientAnswer in validPayMethods)){
-                return fallBack(`${ctx.name}, por favor escribe unicamente *efectivo*, *tarjeta* o *transferencia*`)
+                return fallBack(`${ctx.name}, por favor escribe unicamente *efectivo* o *tarjeta*`)
             } else {
                 const updatedOrder = {
                     ...currentOrder,
@@ -243,7 +243,7 @@ const especPedidoFlow = addKeyword(utils.setEvent('ESPEC_PEDIDO'))
     )
     .addAction(async (ctx, {state, flowDynamic}) => {
         const order = state.get('order')
-        const deliverOrRest = order.deliverOrRest === 'domicilio' ? `🏢 Domicilio: ${order.address} \n\n 💵 Pago con: ${order.payMethod.charAt(0).toUpperCase() + order.payMethod.slice(1)}` : `🏢 Sucursal: ${order.sucursal} \n\n👤 El pedido se entregará a: ${order.deliverTo}`
+        const deliverOrRest = order.deliverOrRest === 'domicilio' ? `🏢 Domicilio: ${order.address} \nReferencia: ${order.refAddress} \n\n 💵 Pago con: ${order.payMethod.charAt(0).toUpperCase() + order.payMethod.slice(1)}` : `🏢 Sucursal: ${order.sucursal} \n\n👤 El pedido se entregará a: ${order.deliverTo}`
         const specs = order.specs === '' ? '' : `\n\n📋 Especificaciones: ${order.specs}`
         flowDynamic(`Muy bien ${ctx.name} vamos a confirmar tu orden:
                 \n🧾 ID: *${order.orderId}*
@@ -413,6 +413,7 @@ const senOrderAPI = async (order) => {
         } else if (response.ok){
             console.log(`RESPONSE DEL SCRIPT: ${JSON.stringify(response, null, 2)}`)
             console.log(`Orden enviada al script correctamente: ${response.statusText}`)
+            console.log(`Orden enviada: ${JSON.stringify(order, null, 2)}`)
         }
     }catch (error){
         console.error(`Error al hacer la PETICION al GScript ${error}`)
