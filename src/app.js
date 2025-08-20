@@ -141,9 +141,10 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
         })
     .addAnswer('Proporcioname referencias de tu domicilio que puedan ayudar al repartidor a encontrarte más fácil :D. Sé muy específico por favor!!',
                {capture: true}, 
-              async (ctx, {state, gotoFlow, fallBack}) =>{
+              async (ctx, {state, gotoFlow, fallBack}) => {
                   //vamos a actualizar la orden con las referencias del domicilio del cliente 
                   const currentOrder = state.get('order')
+                  const clientAnswer = ctx.body.trim()
                   if (clientAnswer.length < 10 ){
                       return fallBack(`${ctx.name}, por favor escribe la referencia de tu domicilio completa y detalladamente. Sé específico por favor`)
                   }
