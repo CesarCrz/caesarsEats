@@ -317,7 +317,7 @@ const orderFlow = addKeyword(EVENTS.ORDER)
                         \nGracias por tu compra!`)*/
     const order = {
         action: 'nuevoPedido',
-        restaurante: Soru,
+        restaurante: 'Soru',
         orderId,
         orderToken,
         deliverOrRest,
