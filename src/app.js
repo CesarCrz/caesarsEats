@@ -109,6 +109,9 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
                 sucursal: 'ITESO'
             }
             await state.update({order: updatedOrder})
+            //creamos un objeto global con el codigo postal para despues acceder a el
+            const clientCP = state.get('cp')
+            await state.update({cp: clientAnswer})
         } else if (clientAnswer in validTesoroCP) {
             const updatedOrder = {
                 ...currentOrder,
