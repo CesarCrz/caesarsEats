@@ -150,7 +150,7 @@ const getAddress = addKeyword(utils.setEvent('getAddress'))
                   }
                   const updatedOrder = {
                       ...currentOrder,
-                      refAddress: clientAnswer
+                      referencia: clientAnswer
                   }
                   await state.update({order: updatedOrder})
                   return gotoFlow(payMethod)
@@ -243,7 +243,7 @@ const especPedidoFlow = addKeyword(utils.setEvent('ESPEC_PEDIDO'))
     )
     .addAction(async (ctx, {state, flowDynamic}) => {
         const order = state.get('order')
-        const deliverOrRest = order.deliverOrRest === 'domicilio' ? `🏢 Domicilio: ${order.address} \nReferencia: ${order.refAddress} \n\n 💵 Pago con: ${order.payMethod.charAt(0).toUpperCase() + order.payMethod.slice(1)}` : `🏢 Sucursal: ${order.sucursal} \n\n👤 El pedido se entregará a: ${order.deliverTo}`
+        const deliverOrRest = order.deliverOrRest === 'domicilio' ? `🏢 Domicilio: ${order.address} \nReferencia: ${order.referencia} \n\n 💵 Pago con: ${order.payMethod.charAt(0).toUpperCase() + order.payMethod.slice(1)}` : `🏢 Sucursal: ${order.sucursal} \n\n👤 El pedido se entregará a: ${order.deliverTo}`
         const specs = order.specs === '' ? '' : `\n\n📋 Especificaciones: ${order.specs}`
         flowDynamic(`Muy bien ${ctx.name} vamos a confirmar tu orden:
                 \n🧾 ID: *${order.orderId}*
