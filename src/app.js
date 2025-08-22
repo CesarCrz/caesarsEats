@@ -327,7 +327,7 @@ const orderFlow = addKeyword(EVENTS.ORDER)
         sucursal : '',
         deliverTo: '',
         address: '',
-        refaddress: '',
+        referencia: '',
         productDetails,
         total: orderDetails.price.total / 1000,
         currency: orderDetails.price.currency,
