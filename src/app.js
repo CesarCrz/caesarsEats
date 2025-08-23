@@ -26,7 +26,7 @@ const discordFlow = addKeyword('doc').addAnswer(
     }
 )
 
-const welcomeFlow = addKeyword(['hi', 'hello', 'bien'])
+const wwelcomeFlow = addKeyword(['hi', 'hello', 'bien'])
     .addAnswer(`🙌 Hello welcome to this *Chatbot*`)
     .addAnswer(
         [
