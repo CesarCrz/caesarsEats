@@ -67,6 +67,9 @@ const fullSamplesFlow = addKeyword(['samples', utils.setEvent('SAMPLES')])
 const pdfFlow = addKeyword('pdf')
     .addAnswer('Ya te envìo el PDF', { media: join(process.cwd() , 'assets', 'reg.pdf') })
 
+const welcomeFlow = addkeyword(EVENTS.WELCOME)
+.addAnswer('Hola!!, Si quieres hacer tu pedido por este medio, realiza tu pedido completo accediendo al ícono de la tienda ☝️🛒 mostrado en la parte superior derecha, recuerda agregar todos tus platillos, extras y bebidas *en una sola orden*.\n Una vez elegidos tus productos continuaremos a tomarte los datos. \n\n Si quieres comunicarte con el personal para realizar tu pedido directo a la sucursal te dejo los números de contacto 👇📞: \n📍*ITESO:* 3332713483 \n📍*TESORO:* 3323171186')
+
 
 const deliverOrRest = addKeyword(utils.setEvent('deliverOrRest'))
     .addAnswer('Primero que todo necesito saber si tu pedido es a domicilio o pasarás a recoger el pedido UNICAMENTE (*DOMICILIO o RECOGER*)',
@@ -448,7 +451,7 @@ const handleCloudService = async(number, intent) => {
 
 const main = async () => {
     // Asegúrate que especPedidoFlow y genFlow estén en la lista
-    const adapterFlow = createFlow([orderFlow, especPedidoFlow, cancelOrder, confirmOrder, testFlow, deliverOrRest, getAddress, getSucursal, payMethod])
+    const adapterFlow = createFlow([welcomeFlow, orderFlow, especPedidoFlow, cancelOrder, confirmOrder, testFlow, deliverOrRest, getAddress, getSucursal, payMethod])
     const adapterProvider = createProvider(Provider)
     const adapterDB = new Database()
 
