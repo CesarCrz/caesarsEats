@@ -1,7 +1,7 @@
 import { join } from 'path'
 import { createBot, createProvider, createFlow, addKeyword, utils, EVENTS } from '@builderbot/bot'
 import { MemoryDB as Database } from '@builderbot/bot'
-import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
+import { BaileysProvider as Provider } from 'aurik3-provider-baileys'
 import { cp, stat } from 'fs'
 import { stringify } from 'querystring'
 import { get } from 'http'
